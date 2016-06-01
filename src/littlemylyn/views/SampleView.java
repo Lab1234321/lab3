@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import littlemylyn.entity.Task;
 import littlemylyn.entity.TaskManager;
+import littlemylyn.entity.TaskManager.Status;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -55,7 +56,7 @@ public class SampleView extends ViewPart {
 //	private Action newTaskAction;
 	private Action doubleClickAction;
 	
-	private TaskManager taskManager=TaskManager.getTaskManeger();
+//	private TaskManager taskManager=TaskManager.getTaskManeger();
 
 	/*
 	 * The content provider class is responsible for
@@ -149,6 +150,19 @@ public class SampleView extends ViewPart {
 				return ((TreeParent)parent).hasChildren();
 			return false;
 		}
+		/*
+		 * find the node according to the name
+		 */
+		
+		public TreeParent findNode(String name){
+			TreeParent[] children = (TreeParent[]) invisibleRoot.getChildren();
+			for (TreeParent t: children){
+				if (t.getName().equals(name)) {
+					return t;
+				}
+			}
+			return null;
+		}
 /*
  * We will set up a dummy model to initialize tree heararchy.
  * In a real code, you will connect to a real model and
@@ -201,7 +215,7 @@ public class SampleView extends ViewPart {
 		void doubleClick(String taskName);
 	}
 	interface Status{
-		void doubleClick();
+		void doubleClick(String taskName);
 	}
 	interface RelatedClass{
 		
@@ -216,7 +230,7 @@ public class SampleView extends ViewPart {
 	class KindNode extends TreeObject implements Kind{
 
 		public KindNode(String name) {
-			super(name);
+			super("Kind: "+name);
 			// TODO Auto-generated constructor stub
 		}
 
@@ -224,11 +238,7 @@ public class SampleView extends ViewPart {
 		public void doubleClick(String taskName) {
 			// TODO Auto-generated method stub
 			littlemylyn.entity.TaskManager.Kind kind  = getTaskKind();
-			System.out.println(taskName);
-			Task task = taskManager.getTask(taskName);
-			System.out.println(taskManager.getTaskList().size());
-			
-			
+			Task task = TaskManager.getTaskManeger().getTask(taskName);
 			if (null == task){
 				System.out.println("Error! the task is null");
 			}else{
@@ -238,19 +248,38 @@ public class SampleView extends ViewPart {
 			}
 		}
 		
+		@Override
+		public void setName(String name){
+			super.setName("Kind: "+name);
+		}
 	}
 
 	class StatusNode extends TreeObject implements Status{
 
 		public StatusNode(String name) {
-			super(name);
+			super("Status: "+name);
 			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		public void doubleClick() {
+		public void doubleClick(String taskName) {
 			// TODO Auto-generated method stub
-			
+			Task task = TaskManager.getTaskManeger().getTask(taskName);
+			if (task == null) {
+				System.out.println("Error! the task is null");
+			}else{
+				littlemylyn.entity.TaskManager.Status status = getStatus(taskName);
+				this.setName(status.toString());
+				
+				for(Task t:TaskManager.getTaskManeger().getTaskList()){
+					System.out.println(t.getName()+" "+t.getKind().toString()+" "+t.getStatus().toString());
+				}
+				
+			}
+		}
+		@Override
+		public void setName(String name){
+			super.setName("Status: "+name);
 		}
 		
 	}
@@ -360,13 +389,14 @@ public class SampleView extends ViewPart {
 			public void run() {
 				ISelection selection = viewer.getSelection();
 				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
+//				showMessage("Double-click detected on "+obj.toString());
 			
 				if (obj instanceof KindNode) {
 					((KindNode)obj).doubleClick(((KindNode)obj).getParent().toString());
 					viewer.refresh();
 				}else if ( obj instanceof StatusNode){
-					((StatusNode)obj).doubleClick();
+					((StatusNode)obj).doubleClick(((StatusNode)obj).getParent().toString());
+					viewer.refresh();
 				}
 				
 			}
@@ -470,12 +500,58 @@ public class SampleView extends ViewPart {
 		viewer.refresh();
 	}
 	
+	/*
+	 * Open a wizard page to set the task's kind
+	 * then return the new set kind
+	 */
+	
 	public littlemylyn.entity.TaskManager.Kind getTaskKind(){
 		TaskWizard tw = new TaskWizard(); 
 		WizardDialog wizardDialog = new WizardDialog(Display.getCurrent().getActiveShell(), tw);
 		wizardDialog.open();
-//		littlemylyn.entity.TaskManager.Kind k = tw.getKind();
 		return tw.getKind();
+	}
+	/*
+	 * like the method above, open a wizard page to set the task's status,
+	 * then set the new set status
+	 * but there are some rule to limit the new set status
+	 */
+	
+	public littlemylyn.entity.TaskManager.Status getStatus(String taskName){
+		Task currentTask = TaskManager.getTaskManeger().getTask(taskName);
+		littlemylyn.entity.TaskManager.Status currentStatus = currentTask.getStatus();
+		
+			StatusWizard sw = new StatusWizard(); 
+			WizardDialog wizardDialog = new WizardDialog(Display.getCurrent().getActiveShell(), sw);
+			wizardDialog.open();
+			littlemylyn.entity.TaskManager.Status newStatus = sw.getStatus();			
+			//all status can be activated
+			if(newStatus == littlemylyn.entity.TaskManager.Status.ACTIVATED){
+				/*
+				 * set the activated task to finished
+				 */
+				ArrayList<Task> taskList = TaskManager.getTaskManeger().getTaskList();
+				for(Task task : taskList){
+					if (task.getStatus()==littlemylyn.entity.TaskManager.Status.ACTIVATED) {
+						task.setStatus(littlemylyn.entity.TaskManager.Status.FINISHED);
+						ViewContentProvider vp = (ViewContentProvider) viewer.getContentProvider();
+						TreeParent t =(TreeParent) vp.findNode(task.getName());
+						TreeObject[] childrenObjects = t.getChildren();
+						for (TreeObject treeObject:childrenObjects){
+							if (treeObject instanceof StatusNode) {
+								treeObject.setName(littlemylyn.entity.TaskManager.Status.FINISHED.toString());
+							}
+						}
+					}
+				}			
+				TaskManager.getTaskManeger().getTask(taskName).setStatus(littlemylyn.entity.TaskManager.Status.ACTIVATED);
+				return littlemylyn.entity.TaskManager.Status.ACTIVATED;
+			}else{
+			//if new status != activated, then new status == finished
+				TaskManager.getTaskManeger().getTask(taskName).setStatus(littlemylyn.entity.TaskManager.Status.FINISHED);
+				return littlemylyn.entity.TaskManager.Status.FINISHED;
+			}
+			
 	}
 	
 	
