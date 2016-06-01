@@ -59,4 +59,18 @@ public class TaskManager {
 		taskList.add(task);
 	}
 	
+	/*
+	 * add the related classes to the activated task
+	 * this is only one activated class at one time 
+	 */
+	
+	public void addRelatedClass(String className) {
+		for(Task task:taskList){
+			if (task.getStatus()==Status.ACTIVATED) {
+				task.addRelatedClass(className);
+				break;
+			}
+		}
+	}
+	
 }
