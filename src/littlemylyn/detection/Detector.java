@@ -4,6 +4,11 @@ import littlemylyn.entity.Task;
 import littlemylyn.entity.TaskManager;
 import littlemylyn.views.SampleView;
 
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
@@ -24,6 +29,8 @@ public class Detector {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
 		IWorkbenchPage page = window.getActivePage();
+		
+		IWorkspace space = ResourcesPlugin.getWorkspace();
 		
 		page.addPartListener(new IPartListener() {
 			
@@ -63,9 +70,22 @@ public class Detector {
 				// TODO Auto-generated method stub
 				System.out.println("part activated");
 				System.out.println("partActivated"+part.getTitle());
+				System.out.println("part class: "+part.getClass().toString());
 				detect(sampleView, part);
 			}
 		});
+		
+		space.addResourceChangeListener(new IResourceChangeListener() {
+			
+			@Override
+			public void resourceChanged(IResourceChangeEvent event) {
+				// TODO Auto-generated method stub
+				System.out.println("event get type"+event.getType());
+			}
+		});
+		
+		
+		
 	}
 	
 	public void detect(SampleView sampleView,IWorkbenchPart part){

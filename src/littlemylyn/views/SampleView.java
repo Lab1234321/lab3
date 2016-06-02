@@ -219,11 +219,14 @@ public class SampleView extends ViewPart {
 			ArrayList<Task> taskList = TaskManager.getTaskManeger().getTaskList();
 			for(Task task:taskList){
 				TaskNode tn = new TaskNode(task);
-				ArrayList<String[]> relatedClasses = task.getRelatedClass();
-				for(String[] relatedClass : relatedClasses){
-					ClassLeaf cl = new ClassLeaf(relatedClass[0], relatedClass[1]);
-					tn.getRelatedClassNode().addChild(cl);
-				}
+//				ArrayList<String[]> relatedClasses = task.getRelatedClass();
+				tn.getRelatedClassNode().relatedClasses = task.getRelatedClass();
+//				for(String[] relatedClass : relatedClasses){
+//					ClassLeaf cl = new ClassLeaf(relatedClass[0], relatedClass[1]);
+//					tn.getRelatedClassNode().addChild(cl);
+//				}
+				tn.getRelatedClassNode().updateChildren();
+				tn.getRelatedClassNode().updateNum();
 				invisibleRoot.addChild(tn);
 			}
 		}
@@ -348,8 +351,8 @@ public class SampleView extends ViewPart {
 			// TODO Auto-generated constructor stub
 		}
 		
-		public void updateNum(int num){
-			this.setName("RelatedClass("+num+")");
+		public void updateNum(){
+			this.setName("RelatedClass("+relatedClasses.size()+")");
 		}
 		public void addChild(ClassLeaf child) {
 			children.add(child);
@@ -671,8 +674,8 @@ public class SampleView extends ViewPart {
 	public void addRelatedClassUpdateView(Task task){
 		ViewContentProvider vp = (ViewContentProvider) viewer.getContentProvider();
 		TaskNode t =(TaskNode) vp.findTaskNode(task.getName());
-		t.getRelatedClassNode().updateNum(task.getRelatedClass().size());	
 		t.getRelatedClassNode().setRelatedClasses(task.getRelatedClass());
+		t.getRelatedClassNode().updateNum();	
 		t.getRelatedClassNode().updateChildren();
 		viewer.refresh();
 	}
