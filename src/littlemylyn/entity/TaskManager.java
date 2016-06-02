@@ -1,6 +1,14 @@
 package littlemylyn.entity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
 
 public class TaskManager {
 
@@ -10,6 +18,8 @@ public class TaskManager {
 	public  enum Status{
 		NEW, ACTIVATED, FINISHED 
 	}
+	
+	public static final String DATAPATH = "D:/lab3/data/data.txt";
 	
 	/*
 	 * I think we should use singleton to get the instance of
@@ -23,7 +33,7 @@ public class TaskManager {
 	
 	
 	private TaskManager(){
-		taskList = new ArrayList();
+		taskList = readTaskList();
 	}
 	
 	public static TaskManager getTaskManeger(){
@@ -64,13 +74,54 @@ public class TaskManager {
 	 * this is only one activated class at one time 
 	 */
 	
-	public void addRelatedClass(String className) {
+	public void addRelatedClass(String[] className) {
 		for(Task task:taskList){
 			if (task.getStatus()==Status.ACTIVATED) {
 				task.addRelatedClass(className);
 				break;
 			}
 		}
+	}
+	
+	public Task getActivatedTask(){
+		for (Task task:taskList){
+			if(task.getStatus()==Status.ACTIVATED){
+				return task;
+			}
+		}
+		return null;
+	}
+	
+	public void saveTaskList(){
+
+		//save the task to a file, using absolute path
+		try {
+			ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(DATAPATH));
+			oStream.writeObject(taskList);
+			oStream.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList<Task> readTaskList(){
+		ArrayList<Task> taskList = new ArrayList<Task>();
+		try {
+			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
+			taskList = (ArrayList<Task>)oInputStream.readObject();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return taskList;
 	}
 	
 }
