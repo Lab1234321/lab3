@@ -51,11 +51,15 @@ public class Task implements Serializable{
 	
 	public void addRelatedClass(String[] className){
 		boolean isContainted = false;
+		System.out.println("Debug: className:"+className[0]+" "+className[1]);
 		for (String[] relatedClass: relatedClasses){
+			System.out.println("Debug: relatedClass:"+relatedClass[0]+" "+relatedClass[1]);
+			
 			if(relatedClass[0].equals(className[0])&&relatedClass[1].equals(className[1])){
 				isContainted=true;
 			}
 		}
+		System.out.println("isContainted: "+isContainted);
 		if(!isContainted){
 			this.relatedClasses.add(className);
 		}
