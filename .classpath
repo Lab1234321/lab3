@@ -5,6 +5,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.core.resources_3.3.0.v20070604.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.ui.ide_3.5.2.M20100113-0800.jar"/>
-	<classpathentry kind="lib" path="/Users/Joker/Downloads/mysql-connector-java-5.1.39/mysql-connector-java-5.1.39-bin.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.39-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
