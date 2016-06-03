@@ -147,6 +147,7 @@ public class TaskManager {
 					System.out.print(rc[i] + "  ");
 				System.out.println();
 			}
+			oInputStream.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -300,7 +300,11 @@ public class LittleMylynView extends ViewPart {
 			for(String[] relatedClass:relatedClasses){
 				isContained = false;
 				for (TreeObject child : children){
-					if(child.getName().equals(relatedClass[0])){
+					String childName = child.getName();
+					int index = childName.indexOf('(');
+					childName = childName.substring(0,index);
+					
+					if(childName.equals(relatedClass[0])&&((ClassLeaf)child).getTitleToolTip().equals(relatedClass[1])){
 						isContained =true;
 					}
 				}
@@ -318,7 +322,7 @@ public class LittleMylynView extends ViewPart {
 		String titleToolTip;
 		
 		public ClassLeaf(String name, String titleToolTip) {
-			super(name);
+			super(name+"("+titleToolTip+")");
 			this.titleToolTip = titleToolTip;
 			// TODO Auto-generated constructor stub
 		}
@@ -339,17 +343,10 @@ public class LittleMylynView extends ViewPart {
 				e.printStackTrace();
 				System.out.println();
 			}
-			
-//			try {
-//				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-//				              IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("TestProject");
-//				              
-//				              IFile java_file = project.getFile(new Path("/java_file.txt"));
-//				              IDE.openEditor(page, java_file, "org.eclipse.jdt.ui.CompilationUnitEditor");
-//				          } catch (CoreException e) {
-//				              IStatus status = new Status(IStatus.ERROR, "myplugin", 102, "打开工作区内文件出错", e);
-//				              Activator.getDefault().getLog().log(status);
-//				         }
+		}
+		
+		public String getTitleToolTip(){
+			return titleToolTip;
 		}
 		
 	}
