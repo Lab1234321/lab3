@@ -17,7 +17,6 @@ public class TaskWizard extends Wizard{
 	private Kind kind;
 	
 	public TaskWizard() {
-		// TODO Auto-generated constructor stub
 		kindChoice = new KindChoice("Kind Set");
 		this.addPage(kindChoice);
 		this.setWindowTitle("New Task");
@@ -26,12 +25,6 @@ public class TaskWizard extends Wizard{
 	
 	@Override
 	public boolean performFinish() {
-		// TODO Auto-generated method stub
-		System.out.println("performFinish");
-		System.out.println(kindChoice.b1.getSelection());
-		System.out.println(kindChoice.b2.getSelection());
-		System.out.println(kindChoice.b3.getSelection());
-		
 		//set kind
 		if(kindChoice.b1.getSelection()){
 			kind = TaskManager.Kind.DEBUG;
@@ -46,8 +39,9 @@ public class TaskWizard extends Wizard{
 	public Kind getKind() {
 		return kind;
 	}
-
 }
+
+
 class KindChoice extends WizardPage{
 	Button b1;
 	Button b2;
@@ -55,13 +49,11 @@ class KindChoice extends WizardPage{
 	
 	protected KindChoice(String pageName) {
 		super(pageName);
-		// TODO Auto-generated constructor stub
 		this.setMessage("Please set the new task's kind ");
 	}
 
 	@Override
 	public void createControl(Composite parent) {
-		// TODO Auto-generated method stub
 		Composite composite = new Composite(parent, SWT.NONE);  
         composite.setLayout(new GridLayout(2, false));  
         new Label(composite, SWT.LEFT).setText("A.");  

@@ -9,9 +9,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-
+/*
+ * The TaskManager is used to manage all tasks
+ */
 public class TaskManager {
 
+	/*
+	 * The task's Kind and Status
+	 */
 	public  enum Kind{
 		DEBUG, NEW_FEATURE, REFACTOR
 	}
@@ -19,20 +24,27 @@ public class TaskManager {
 		NEW, ACTIVATED, FINISHED 
 	}
 	
+	/*
+	 * The DATAPATH is the path to save tasks when the plugin is closed
+	 */
 	public static final String DATAPATH = "D:/lab3/data/data.txt";
 	
 	/*
-	 * I think we should use singleton to get the instance of
-	 * TaskManager, because there can exist one instance at most
-	 * in the whole lab  --written by zhangtao 
+	 * The taskList is used to store all tasks at runtime
 	 */
-	private static TaskManager taskManager;
-	
 	private ArrayList<Task> taskList;
 	
 	
+	/*
+	 * using singleton to get the instance of TaskManager, 
+	 * because there can exist one instance at most in the whole lab
+	 */
+	private static TaskManager taskManager;
 	
 	private TaskManager(){
+		/*
+		 * read data from file to initialize tasklist
+		 */
 		taskList = readTaskList();
 	}
 	
@@ -40,9 +52,9 @@ public class TaskManager {
 		if (null == taskManager){
 			taskManager = new TaskManager();
 		}
-		
 		return taskManager;
 	}
+	
 	
 	/*
 	 * There are some methods that can apply to taskList  
@@ -64,7 +76,9 @@ public class TaskManager {
 		return this.taskList;
 	}
 	
-	
+	/*
+	 * when user create a task, use this method to add it to tasklist
+	 */
 	public void addTask(Task task){
 		taskList.add(task);
 	}
@@ -83,6 +97,9 @@ public class TaskManager {
 		}
 	}
 	
+	/*
+	 * search tasklist then return the activated task
+	 */
 	public Task getActivatedTask(){
 		for (Task task:taskList){
 			if(task.getStatus()==Status.ACTIVATED){
@@ -91,10 +108,12 @@ public class TaskManager {
 		}
 		return null;
 	}
-	
-	public void saveTaskList(){
 
-		//save the task to a file, using absolute path
+	
+	/*
+	 * save the tasklist to file
+	 */
+	public void saveTaskList(){
 		try {
 			ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(DATAPATH));
 			oStream.writeObject(taskList);
@@ -109,15 +128,15 @@ public class TaskManager {
 		}
 	}
 	
+	/*
+	 * read task list from file
+	 */
 	public ArrayList<Task> readTaskList(){
 		ArrayList<Task> taskList = new ArrayList<Task>();
 		try {
 			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
 			taskList = (ArrayList<Task>)oInputStream.readObject();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

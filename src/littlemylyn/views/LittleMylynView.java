@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.omg.CORBA.PRIVATE_MEMBER;
 
 
-public class SampleView extends ViewPart {
+public class LittleMylynView extends ViewPart {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -42,129 +42,14 @@ public class SampleView extends ViewPart {
 
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
-	private Action action1;
 	private Action newTaskAction;
 	private Action doubleClickAction;
 	
 
-	/*
-	 * The content provider class is responsible for
-	 * providing objects to the view. It can wrap
-	 * existing objects in adapters or simply return
-	 * objects as-is. These objects may be sensitive
-	 * to the current input of the view, or ignore
-	 * it and always show the same content 
-	 * (like Task List, for example).
-	 */
-	 
-	class TreeObject implements IAdaptable {
-		private String name;
-		private TreeObject parent;
-		protected ArrayList<TreeObject> children;
-		
-		public TreeObject(String name) {
-			this.name = name;
-			children = new ArrayList();
-		}
-		
-		public String getName() {
-			return name;
-		}
-		public void setParent(TreeObject parent) {
-			this.parent = parent;
-		}
-		public TreeObject getParent() {
-			return parent;
-		}
-		public String toString() {
-			return getName();
-		}
-		public Object getAdapter(Class key) {
-			return null;
-		}
-		
-		public void setName(String Name) {
-			this.name = Name;
-		}
-		public void addChild(TreeObject child) {
-			children.add(child);
-			child.setParent(this);
-		}
-		public void removeChild(TreeObject child) {
-			children.remove(child);
-			child.setParent(null);
-		}
-		public boolean hasChildren() {
-			return children.size()>0;
-		}
-		public TreeObject [] getChildren() {
-			return (TreeObject [])children.toArray(new TreeObject[children.size()]);
-		}
-	}
 	
 	
-	class Root extends TreeObject{
-//		private ArrayList<TaskNode> children;
-		
-		public Root(String name) {
-			super(name);
-		// TODO Auto-generated constructor stub
-			children = new ArrayList();
-		}
-		public void addChild(TaskNode child) {
-			children.add(child);
-			
-		}
-		public void removeChild(TaskNode child) {
-			children.remove(child);
-			
-		}
-		public TaskNode [] getChildren() {
-			return (TaskNode [])children.toArray(new TaskNode[children.size()]);
-		}
-		public boolean hasChildren() {
-			return children.size()>0;
-		}
-	}
-	class TaskNode extends TreeObject{
-		
-		private Task task;		
-		private KindNode kindNode;
-		private StatusNode statusNode;
-		private RelatedClassNode relatedClassNode;
-		
-		public TaskNode(Task task) {
-			super(task.getName());
-			// TODO Auto-generated constructor stub
-			this.task = task;
-			kindNode = new KindNode(task.getKind());
-			statusNode = new StatusNode(task.getStatus());
-			relatedClassNode = new RelatedClassNode();
-			this.addChild(kindNode);
-			this.addChild(statusNode);
-			this.addChild(relatedClassNode);
-		}
-		
-		public KindNode getKindNode() {
-			return kindNode;
-		}
-		
-		public StatusNode getStatusNode() {
-			return statusNode;
-		}
-		
-		public RelatedClassNode getRelatedClassNode() {
-			return relatedClassNode;
-		}
-		
-		public Task getTask(){
-			return task;
-		}
-		
-		
-	}
-
-	class ViewContentProvider implements IStructuredContentProvider, 
+	
+		class ViewContentProvider implements IStructuredContentProvider, 
 										   ITreeContentProvider {
 		private Root invisibleRoot;
 
@@ -244,29 +129,6 @@ public class SampleView extends ViewPart {
 	class NameSorter extends ViewerSorter {
 	}
 	
-	
-	
-	/*
-	 * The following interfaces are written by alexzhang, if you have some question, call him soon
-	 * doubleClick() handle the double click event
-	 */
-	
-	interface KindInterface{
-		void doubleClick(String taskName);
-	}
-	interface StatusInterface{
-		void doubleClick(String taskName);
-	}
-	interface RelatedClassInterface{
-		
-	}
-	
-	/*
-	 * The following classes are written by alexzhang, if you have some question, call him soon
-	 * KindNode
-	 * StatusNode
-	 * RelatedClassNode
-	 */
 	class KindNode extends TreeObject implements KindInterface{
 
 		Kind kind;
@@ -282,7 +144,7 @@ public class SampleView extends ViewPart {
 		
 		@Override
 		public void doubleClick(String taskName) {
-			littlemylyn.entity.TaskManager.Kind kind  = getTaskKind();
+			littlemylyn.entity.TaskManager.Kind kind  = LittleMylynView.getTaskKind();
 				this.setKind(kind);
 				System.out.println("Kind to string: "+kind.toString());
 				this.setName(kind.toString());
@@ -291,15 +153,80 @@ public class SampleView extends ViewPart {
 		public void setKind(Kind kind){
 			super.setName("Kind: "+kind.toString());
 			this.kind = kind;
-			((TaskNode)(this.getParent())).task.setKind(kind);
+			((TaskNode)(this.getParent())).getTask().setKind(kind);
 		}
 		
 		@Override
 		public String getName(){
 			return "Kind: "+kind.toString();
 		}
+
+
 	}
 
+
+	class Root extends TreeObject{
+		public Root(String name) {
+			super(name);
+		// TODO Auto-generated constructor stub
+			children = new ArrayList();
+		}
+		public void addChild(TaskNode child) {
+			children.add(child);
+			
+		}
+		public void removeChild(TaskNode child) {
+			children.remove(child);
+			
+		}
+		public TaskNode [] getChildren() {
+			return (TaskNode [])children.toArray(new TaskNode[children.size()]);
+		}
+		public boolean hasChildren() {
+			return children.size()>0;
+		}
+	}
+
+	class TaskNode extends TreeObject{
+		
+		private Task task;		
+		private KindNode kindNode;
+		private StatusNode statusNode;
+		private RelatedClassNode relatedClassNode;
+		
+		public TaskNode(Task task) {
+			super(task.getName());
+			// TODO Auto-generated constructor stub
+			this.task = task;
+			kindNode = new KindNode(task.getKind());
+			statusNode = new StatusNode(task.getStatus());
+			relatedClassNode = new RelatedClassNode();
+			this.addChild(kindNode);
+			this.addChild(statusNode);
+			this.addChild(relatedClassNode);
+//			task.setTaskNode(this);
+		}
+		
+		public KindNode getKindNode() {
+			return kindNode;
+		}
+		
+		public StatusNode getStatusNode() {
+			return statusNode;
+		}
+		
+		public RelatedClassNode getRelatedClassNode() {
+			return relatedClassNode;
+		}
+		
+		public Task getTask(){
+			return task;
+		}
+		
+		
+	}
+
+	
 	class StatusNode extends TreeObject implements StatusInterface{
 
 		Status status;
@@ -332,7 +259,7 @@ public class SampleView extends ViewPart {
 		public void setStatus(Status status){
 			super.setName("Status: "+status.toString());
 			this.status = status;
-			((TaskNode)(this.getParent())).task.setStatus(status);
+			((TaskNode)(this.getParent())).getTask().setStatus(status);
 		}
 		
 		
@@ -340,8 +267,9 @@ public class SampleView extends ViewPart {
 		public String getName(){
 			return "Status: "+status.toString();
 		}
+		
 	}
-	
+
 	class RelatedClassNode extends TreeObject implements RelatedClassInterface{
 
 		ArrayList<String[]> relatedClasses = new ArrayList<String[]>();
@@ -384,10 +312,10 @@ public class SampleView extends ViewPart {
 		}
 		
 	}
-	
+
 	class ClassLeaf extends TreeObject{
 
-		private String titleToolTip;
+		String titleToolTip;
 		
 		public ClassLeaf(String name, String titleToolTip) {
 			super(name);
@@ -425,12 +353,14 @@ public class SampleView extends ViewPart {
 		}
 		
 	}
-	
+
+
+
 	
 	/**
 	 * The constructor.
 	 */
-	public SampleView() {
+	public LittleMylynView() {
 	}
 
 	/**
@@ -460,7 +390,7 @@ public class SampleView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
-				SampleView.this.fillContextMenu(manager);
+				LittleMylynView.this.fillContextMenu(manager);
 			}
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
@@ -475,13 +405,11 @@ public class SampleView extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
 		manager.add(new Separator());
 		manager.add(newTaskAction);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(action1);
 		manager.add(newTaskAction);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
@@ -490,23 +418,12 @@ public class SampleView extends ViewPart {
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
 		manager.add(newTaskAction);
 		manager.add(new Separator());
 		drillDownAdapter.addNavigationActions(manager);
 	}
 
 	private void makeActions() {
-		action1 = new Action() {
-			public void run() {
-				showMessage("Action 1 executed");
-			}
-		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
 		newTaskAction = new Action() {
 			public void run() {
 				newTask();
@@ -631,12 +548,25 @@ public class SampleView extends ViewPart {
 	 * then return the new set kind
 	 */
 	
-	public littlemylyn.entity.TaskManager.Kind getTaskKind(){
+	
+	
+	public void addRelatedClassUpdateView(Task task){
+		ViewContentProvider vp = (ViewContentProvider) viewer.getContentProvider();
+		TaskNode t =(TaskNode) vp.findTaskNode(task.getName());
+		t.getRelatedClassNode().setRelatedClasses(task.getRelatedClass());
+		t.getRelatedClassNode().updateNum();	
+		t.getRelatedClassNode().updateChildren();
+		viewer.refresh();
+	}
+	
+	
+	public static littlemylyn.entity.TaskManager.Kind getTaskKind(){
 		TaskWizard tw = new TaskWizard(); 
 		WizardDialog wizardDialog = new WizardDialog(Display.getCurrent().getActiveShell(), tw);
 		wizardDialog.open();
 		return tw.getKind();
 	}
+	
 	/*
 	 * like the method above, open a wizard page to set the task's status,
 	 * then set the new set status
@@ -669,16 +599,7 @@ public class SampleView extends ViewPart {
 			
 		}
 	}
-	
-	
-	public void addRelatedClassUpdateView(Task task){
-		ViewContentProvider vp = (ViewContentProvider) viewer.getContentProvider();
-		TaskNode t =(TaskNode) vp.findTaskNode(task.getName());
-		t.getRelatedClassNode().setRelatedClasses(task.getRelatedClass());
-		t.getRelatedClassNode().updateNum();	
-		t.getRelatedClassNode().updateChildren();
-		viewer.refresh();
-	}
+
 	
 	
 	/**
@@ -686,5 +607,9 @@ public class SampleView extends ViewPart {
 	 */
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	public TreeViewer getViewer(){
+		return viewer;
 	}
 }
