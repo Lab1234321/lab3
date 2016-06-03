@@ -27,7 +27,7 @@ public class TaskManager {
 	/*
 	 * The DATAPATH is the path to save tasks when the plugin is closed
 	 */
-	public static final String DATAPATH = "D:/lab3/data/data.txt";
+	public static final String DATAPATH = "./data.txt";
 	
 	/*
 	 * The taskList is used to store all tasks at runtime
@@ -136,6 +136,17 @@ public class TaskManager {
 		try {
 			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
 			taskList = (ArrayList<Task>)oInputStream.readObject();
+			// FIXME: debug
+			System.out.println("name: " + taskList.get(0).getName());
+			System.out.println("kind: " + taskList.get(0).getKind());
+			System.out.println("status: " + taskList.get(0).getStatus());
+			ArrayList<String[]> relatedClasses = taskList.get(0).getRelatedClass();
+			System.out.println("relatedClasses: ");
+			for (String[] rc : relatedClasses) {
+				for (int i = 0; i < rc.length; i++)
+					System.out.print(rc[i] + "  ");
+				System.out.println();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
