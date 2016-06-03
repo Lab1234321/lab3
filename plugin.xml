@@ -5,14 +5,15 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Sample Category"
+            name="LittleMylyn"
             id="LittleMylyn">
       </category>
+      
       <view
-            name="Sample View"
+            name="LittleMylyn"
             icon="icons/sample.gif"
             category="LittleMylyn"
-            class="littlemylyn.views.SampleView"
+            class="littlemylyn.views.LittleMylynView"
             id="littlemylyn.views.SampleView">
       </view>
    </extension>
@@ -34,5 +35,4 @@
             file="contexts.xml">
       </contexts>
    </extension>
-
 </plugin>

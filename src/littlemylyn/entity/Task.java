@@ -6,15 +6,17 @@ import java.util.ArrayList;
 import littlemylyn.entity.TaskManager.Kind;
 import littlemylyn.entity.TaskManager.Status;
 
+
 public class Task implements Serializable{
 	
-	// the name is the id too
-	private String name;
+	
+	private String name;	// the name is the id too
 	private Kind kind;
 	private Status status;
-	
 	private ArrayList<String[]> relatedClasses;
 
+	
+	
 	public Task(String name, Kind kind){
 		this.name = name;
 		this.kind = kind;
@@ -22,6 +24,10 @@ public class Task implements Serializable{
 		this.relatedClasses = new ArrayList<String[]>();
 	}
 	
+	
+	/*
+	 * getter and setter
+	 */
 	public String getName(){
 		return this.name;
 	}
@@ -29,6 +35,7 @@ public class Task implements Serializable{
 	public Kind getKind(){
 		return kind;
 	}
+		
 	
 	public void setKind(Kind kind){
 		this.kind = kind;

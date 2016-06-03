@@ -27,11 +27,6 @@ public class StatusWizard extends Wizard{
 	
 	@Override
 	public boolean performFinish() {
-		// TODO Auto-generated method stub
-		System.out.println("performFinish");
-		System.out.println(statusChoice.b2.getSelection());
-		System.out.println(statusChoice.b3.getSelection());
-		
 		//set kind
 		if (statusChoice.b2.getSelection()){
 			status = TaskManager.Status.ACTIVATED;
@@ -52,13 +47,11 @@ class StatusChoice extends WizardPage{
 	
 	protected StatusChoice(String pageName) {
 		super(pageName);
-		// TODO Auto-generated constructor stub
 		this.setMessage("Please set the task's status");
 	}
 
 	@Override
 	public void createControl(Composite parent) {
-		// TODO Auto-generated method stub
 		Composite composite = new Composite(parent, SWT.NONE);  
         composite.setLayout(new GridLayout(2, false));  
         new Label(composite, SWT.LEFT).setText("B.");  
