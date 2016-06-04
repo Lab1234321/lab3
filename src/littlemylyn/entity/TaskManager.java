@@ -113,7 +113,7 @@ public class TaskManager {
 	/*
 	 * save the tasklist to file
 	 */
-	public void saveTaskList(){
+	public void saveTaskListToFile(ArrayList<Task> taskList) {
 		try {
 			ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(DATAPATH));
 			oStream.writeObject(taskList);
@@ -128,10 +128,14 @@ public class TaskManager {
 		}
 	}
 	
+	public void saveTaskList(){
+		saveTaskListToFile(taskList);
+	}
+	
 	/*
 	 * read task list from file
 	 */
-	public ArrayList<Task> readTaskList(){
+	public ArrayList<Task> readTaskListFromFile() {
 		ArrayList<Task> taskList = new ArrayList<Task>();
 		try {
 			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
@@ -153,6 +157,10 @@ public class TaskManager {
 			e.printStackTrace();
 		}
 		return taskList;
+	}
+	
+	public ArrayList<Task> readTaskList(){
+		return readTaskListFromFile();
 	}
 	
 }
