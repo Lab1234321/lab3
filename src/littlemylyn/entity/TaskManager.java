@@ -1,18 +1,22 @@
 package littlemylyn.entity;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import littlemylyn.db.DBConnector;
 
 /*
  * The TaskManager is used to manage all tasks
  */
 public class TaskManager {
+	public static final boolean useDatabase = true;
+	public static final DBConnector db = new DBConnector();
 
 	/*
 	 * The task's Kind and Status
@@ -111,47 +115,74 @@ public class TaskManager {
 
 	
 	/*
-	 * save the tasklist to file
+	 * save the taskList to file
 	 */
+	public void saveTaskListToFile(ArrayList<Task> taskList) {
+//		try {
+//			ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(DATAPATH));
+//			oStream.writeObject(taskList);
+//			oStream.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
 	public void saveTaskList(){
-		try {
-			ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(DATAPATH));
-			oStream.writeObject(taskList);
-			oStream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (useDatabase)
+			try {
+				db.writeTasks(taskList);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		else
+			saveTaskListToFile(taskList);
 	}
 	
 	/*
 	 * read task list from file
 	 */
-	public ArrayList<Task> readTaskList(){
-		ArrayList<Task> taskList = new ArrayList<Task>();
-		try {
-			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
-			taskList = (ArrayList<Task>)oInputStream.readObject();
-			// FIXME: debug
-			System.out.println("name: " + taskList.get(0).getName());
-			System.out.println("kind: " + taskList.get(0).getKind());
-			System.out.println("status: " + taskList.get(0).getStatus());
-			ArrayList<String[]> relatedClasses = taskList.get(0).getRelatedClass();
-			System.out.println("relatedClasses: ");
-			for (String[] rc : relatedClasses) {
-				for (int i = 0; i < rc.length; i++)
-					System.out.print(rc[i] + "  ");
-				System.out.println();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public ArrayList<Task> readTaskListFromFile() {
+//		ArrayList<Task> taskList = new ArrayList<Task>();
+//		try {
+//			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
+//			taskList = (ArrayList<Task>)oInputStream.readObject();
+//			// FIXME: debug
+//			System.out.println("name: " + taskList.get(0).getName());
+//			System.out.println("kind: " + taskList.get(0).getKind());
+//			System.out.println("status: " + taskList.get(0).getStatus());
+//			ArrayList<String[]> relatedClasses = taskList.get(0).getRelatedClass();
+//			System.out.println("relatedClasses: ");
+//			for (String[] rc : relatedClasses) {
+//				for (int i = 0; i < rc.length; i++)
+//					System.out.print(rc[i] + "  ");
+//				System.out.println();
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return taskList;
+	}
+	public ArrayList<Task> readTaskList(){
+		if (useDatabase)
+			try {
+				return db.readTasks();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return readTaskListFromFile();
 	}
 	
 }

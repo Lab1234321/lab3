@@ -20,7 +20,9 @@ public class DBConnector {
 	protected Connection conn;
 	protected PreparedStatement pst;
 	
-	public DBConnector(String sql) throws ClassNotFoundException, SQLException {
+	public DBConnector() {}
+	
+	private DBConnector(String sql) throws ClassNotFoundException, SQLException {
 		Class.forName(name);
 		conn = DriverManager.getConnection(url, user, passwd);
 		pst = conn.prepareStatement(sql);
