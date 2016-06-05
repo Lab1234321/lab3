@@ -65,13 +65,19 @@ public class Task implements Serializable{
 		}
 	}
 	
-	public void removeRelatedClass(String[] relatedClass){
+	/*
+	 * if the aim class is contained in the related class list, return true
+	 * else return false
+	 */
+	public boolean removeRelatedClass(String[] relatedClass){
 		for(String[] c:relatedClasses){
 			if(c[0].equals(relatedClass[0])&&c[1].equals(relatedClass[1])){
 				relatedClasses.remove(c);
-				break;
+				
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	public ArrayList<String[]> getRelatedClass() {
