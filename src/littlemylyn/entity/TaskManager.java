@@ -135,6 +135,7 @@ public class TaskManager {
 		ArrayList<Task> taskList = new ArrayList<Task>();
 		try {
 			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
+			System.out.println(new File(DATAPATH).getAbsolutePath());
 			taskList = (ArrayList<Task>)oInputStream.readObject();
 			// FIXME: debug
 			System.out.println("name: " + taskList.get(0).getName());
