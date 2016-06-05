@@ -4,6 +4,7 @@ import littlemylyn.entity.Task;
 import littlemylyn.entity.TaskManager;
 import littlemylyn.views.LittleMylynView;
 
+import org.eclipse.core.internal.preferences.StringPool;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -12,6 +13,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPropertyListener;
@@ -84,47 +86,68 @@ public class Detector {
 					public boolean visit(IResourceDelta delta) {
 						System.out.println("delta.kind " + delta.getKind());
 						switch (delta.getKind()) {
-//						case IResourceDelta.CHANGED:
-//							System.out.println("Changed boom!!!");
-//							System.out.println(delta.getResource() instanceof IFile);
-//							System.out.println(delta.getResource().getClass());
-//							System.out.println("Changed Name is "
-//									+ delta.getResource().getName());
-//							System.out.println("path: " + delta.getFullPath());
-//							if (delta.getResource() instanceof IFile) {
-//								if (isJavaFile(delta.getResource().getName())) {
-//
-//								}
-//								System.out.println("Resourced changed");
-//							}
-//							break;
 						case IResourceDelta.ADDED:
-
 							if (delta.getResource() instanceof IFile) {
 								if (isJavaFile(delta.getResource().getName())) {
-									String className = delta.getResource().getName();
-									String path = delta.getResource().getFullPath().toString();
-									path=path.substring(1);
+									String className = delta.getResource()
+											.getName();
+									String path = delta.getResource()
+											.getFullPath().toString();
+									path = path.substring(1);
 									addRelatedClass(view, className, path);
 								}
 								System.out.println("Resourced add");
+								System.out.println("Added Name is "
+										+ delta.getResource().getName());
+								System.out.println("path: "
+										+ delta.getFullPath());
+
 							}
 							break;
 						case IResourceDelta.REMOVED:
 							if (delta.getResource() instanceof IFile) {
+								if (isJavaFile(delta.getResource().getName())) {
+									String className = delta.getResource()
+											.getName();
+									String path = delta.getResource()
+											.getFullPath().toString();
+									path = path.substring(1);
+									removeRelatedClass(view, className, path);
+								}
+
+								System.out.println("Resourced removed");
 								System.out.println("Removed Name is "
 										+ delta.getResource().getName());
 								System.out.println("path: "
 										+ delta.getFullPath());
-							
-								if (isJavaFile(delta.getResource().getName())) {
-									String className = delta.getResource().getName();
-									String path = delta.getResource().getFullPath().toString();
-									path = path.substring(1);
-									removeRelatedClass(view, className, path);
-//									view.getViewer().refresh();
+
+							}
+
+							if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+								String newPath = delta.getMovedToPath()
+										.toString();
+								String newClassName = newPath.substring(newPath
+										.lastIndexOf('/') + 1);
+								if (isJavaFile(newClassName)) {
+									String newClassPath = newPath.substring(1);
+									String oldClassName = delta.getResource()
+											.getName();
+									String oldClassPath = delta.getFullPath()
+											.toString().substring(1);
+
+									String[] oldClass = new String[] {
+											oldClassName, oldClassPath };
+									String[] newClass = new String[] {
+											newClassName, newClassPath };
+
+									System.out.println("newClassName"
+											+ newClassName);
+									System.out.println("newClassPath"
+											+ newClassPath);
+									System.out.println(oldClassName);
+									System.out.println(oldClassPath);
+									changeRelatedClassName(view, oldClass, newClass);
 								}
-								System.out.println("Resourced removed");
 							}
 							break;
 						}
@@ -174,17 +197,29 @@ public class Detector {
 		}
 	}
 
-	public void addRelatedClass(LittleMylynView view,String className, String path){
+	public void addRelatedClass(LittleMylynView view, String className,
+			String path) {
 		Task actTask = TaskManager.getTaskManeger().getActivatedTask();
-		if(null!=actTask){
-			String[] classStrings = {className,path};
+		if (null != actTask) {
+			String[] classStrings = { className, path };
 			actTask.addRelatedClass(classStrings);
 			view.addRelatedClassUpdateView(actTask);
 		}
-		
+
 	}
-	
-	public void removeRelatedClass(LittleMylynView view,String className,String path){
-		view.removeRelatedClassUpdateView(className, path);
+
+	public void removeRelatedClass(LittleMylynView view, String className,
+			String path) {
+		Task actTask = TaskManager.getTaskManeger().getActivatedTask();
+		if (null != actTask) {
+			String[] classStrings = { className, path };
+			actTask.addRelatedClass(classStrings);
+			view.removeRelatedClassUpdateView(actTask, className, path);
+		}
+	}
+
+	public void changeRelatedClassName(LittleMylynView view, String[] oldClass,
+			String[] newClass) {
+		view.changeRelatedClassName(oldClass, newClass);
 	}
 }
