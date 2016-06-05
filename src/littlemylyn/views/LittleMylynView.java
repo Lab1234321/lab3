@@ -333,24 +333,25 @@ public class LittleMylynView extends ViewPart {
 		}
 
 		public void removeChild(String className, String path) {
-			
-			for(ClassLeaf classLeaf : this.getChildren()){
+
+			for (ClassLeaf classLeaf : this.getChildren()) {
 				int index = classLeaf.getName().indexOf('(');
-				String leafNameString = classLeaf.getName().substring(0,index);
-				if(leafNameString.equals(className)&&classLeaf.getTitleToolTip().equals(path)){
+				String leafNameString = classLeaf.getName().substring(0, index);
+				if (leafNameString.equals(className)
+						&& classLeaf.getTitleToolTip().equals(path)) {
 					this.removeChild(classLeaf);
 					break;
 				}
-				
+
 			}
-//			
-//			for (String[] rc : relatedClasses) {
-//				if (rc[0].equals(className) && rc[1].equals(path)) {
-//					relatedClasses.remove(rc);
-//					
-//					break;
-//				}
-//			}
+			//
+			// for (String[] rc : relatedClasses) {
+			// if (rc[0].equals(className) && rc[1].equals(path)) {
+			// relatedClasses.remove(rc);
+			//
+			// break;
+			// }
+			// }
 		}
 
 	}
@@ -478,9 +479,9 @@ public class LittleMylynView extends ViewPart {
 				if (obj instanceof KindNode) {
 					((KindNode) obj).doubleClick(((KindNode) obj).getParent()
 							.toString());
-//					viewer.refresh();
+					// viewer.refresh();
 					Display.getDefault().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
@@ -490,9 +491,9 @@ public class LittleMylynView extends ViewPart {
 				} else if (obj instanceof StatusNode) {
 					((StatusNode) obj).doubleClick(((StatusNode) obj)
 							.getParent().toString());
-//					viewer.refresh();
+					// viewer.refresh();
 					Display.getDefault().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
@@ -596,9 +597,9 @@ public class LittleMylynView extends ViewPart {
 		TaskNode tn = new TaskNode(task);
 
 		vp.invisibleRoot.addChild(tn);
-//		viewer.refresh();
+		// viewer.refresh();
 		Display.getDefault().asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -618,9 +619,9 @@ public class LittleMylynView extends ViewPart {
 		t.getRelatedClassNode().setRelatedClasses(task.getRelatedClass());
 		t.getRelatedClassNode().updateNum();
 		t.getRelatedClassNode().updateChildren();
-//		viewer.refresh();
+		// viewer.refresh();
 		Display.getDefault().asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -632,27 +633,68 @@ public class LittleMylynView extends ViewPart {
 	/*
 	 * should remove the related class no matter which status task is in
 	 */
-	public void removeRelatedClassUpdateView(String className, String path) {
+	public void removeRelatedClassUpdateView(Task task, String className,
+			String path) {
+		ViewContentProvider vp = (ViewContentProvider) viewer
+				.getContentProvider();
+		TaskNode t = (TaskNode) vp.findTaskNode(task.getName());
+		t.getTask().removeRelatedClass(new String[] { className, path });
+		//
+		t.getRelatedClassNode().setRelatedClasses(task.getRelatedClass());
+		t.getRelatedClassNode().updateNum();
+		// t.getRelatedClassNode().updateChildren();
+		t.getRelatedClassNode().removeChild(className, path);
+		// //
+		// viewer.refresh();
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				viewer.refresh();
+			}
+		});
+		// TaskNode[] nodeArray = root.getChildren();
+		// for (TaskNode tn : nodeArray) {
+		// tn.getTask().removeRelatedClass(new String[] { className, path });
+		// tn.getRelatedClassNode().setRelatedClasses(tn.getTask().getRelatedClass());
+		// tn.getRelatedClassNode().updateNum();
+		// tn.getRelatedClassNode().removeChild(className, path);
+		// // viewer.refresh();
+		// Display.getDefault().asyncExec(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// // TODO Auto-generated method stub
+		// viewer.refresh();
+		// }
+		// });
+		// // continue;
+		// }
+	}
+
+	public void changeRelatedClassName(String[] oldClass, String[] newClass) {
 		ViewContentProvider vp = (ViewContentProvider) viewer
 				.getContentProvider();
 		Root root = vp.invisibleRoot;
 		TaskNode[] nodeArray = root.getChildren();
 		for (TaskNode tn : nodeArray) {
-			tn.getTask().removeRelatedClass(new String[] { className, path });
-			tn.getRelatedClassNode().setRelatedClasses(tn.getTask().getRelatedClass());
-			tn.getRelatedClassNode().updateNum();
-			tn.getRelatedClassNode().removeChild(className, path);
-//			viewer.refresh();
-			Display.getDefault().asyncExec(new Runnable() {
+			if (tn.getTask().removeRelatedClass(oldClass)) {
+				tn.getTask().addRelatedClass(newClass);
+				tn.getRelatedClassNode().setRelatedClasses(tn.getTask().getRelatedClass());
+				tn.getRelatedClassNode().removeChild(oldClass[0], oldClass[1]);
+				tn.getRelatedClassNode().addChild(new ClassLeaf(newClass[0], newClass[1]));
 				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					viewer.refresh();
-				}
-			});
-//			continue;
+			}
 		}
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				viewer.refresh();
+			}
+		});
 	}
 
 	public static littlemylyn.entity.TaskManager.Kind getTaskKind() {
@@ -709,6 +751,5 @@ public class LittleMylynView extends ViewPart {
 	public TreeViewer getViewer() {
 		return viewer;
 	}
-	
-	
+
 }
