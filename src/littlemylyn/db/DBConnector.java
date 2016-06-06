@@ -20,6 +20,10 @@ public class DBConnector {
 	protected Connection conn;
 	protected PreparedStatement pst;
 	
+	public DBConnector() {
+		
+	}
+	
 	public DBConnector(String sql) throws ClassNotFoundException, SQLException {
 		Class.forName(name);
 		conn = DriverManager.getConnection(url, user, passwd);
@@ -31,7 +35,7 @@ public class DBConnector {
 		this.pst.close();
 	}
 	
-	private void writeTask(int id, Task task) throws SQLException, ClassNotFoundException {
+	private static void writeTask(int id, Task task) throws SQLException, ClassNotFoundException {
 		String sql;
 		DBConnector db;
 		
@@ -53,7 +57,7 @@ public class DBConnector {
 		db.pst.executeUpdate(sql);
 	}
 	
-	private void deleteTaskTable() throws ClassNotFoundException, SQLException {
+	private static void deleteTaskTable() throws ClassNotFoundException, SQLException {
 		String sql;
 		DBConnector db;
 		
@@ -62,7 +66,7 @@ public class DBConnector {
 		db.pst.executeUpdate();
 	}
 	
-	public void writeTasks(ArrayList<Task> taskList) throws ClassNotFoundException, SQLException {
+	public static void writeTasks(ArrayList<Task> taskList) throws ClassNotFoundException, SQLException {
 		// FIXME: according to current version, database should be erased before write
 		deleteTaskTable();
 		
@@ -73,7 +77,7 @@ public class DBConnector {
 		}
 	}
 	
-	public ArrayList<Task> readTasks() throws ClassNotFoundException, SQLException {
+	public static ArrayList<Task> readTasks() throws ClassNotFoundException, SQLException {
 		String sql;
 		DBConnector db;
 		ResultSet res;
@@ -108,38 +112,39 @@ public class DBConnector {
 	
 	
 	
-	public static void main(String[] args) {
-		String sql;
-		DBConnector db;
-		ResultSet res;
-		
-		sql = "select * from taskinfo";
-		try {
-			db = new DBConnector(sql);
-			res = db.pst.executeQuery();
-			while (res.next()) {
-				int id = res.getInt("id");
-				String name = res.getString("name");
-				int kind = res.getInt("kind");
-				int status = res.getInt("status");
-				String rc_raw = res.getString("relatedClasses");
-				System.out.println(id + " " + name + " " + kind + " " +
-						status + " " + rc_raw);
-			}
-			ArrayList<Task> taskList = new ArrayList<Task>();
-			Task newTask = new Task("task_1", Kind.DEBUG);
-			newTask.addRelatedClass(new String[] {"a.java", "a/a/a.java"});
-			taskList.add(newTask);
-			db.writeTasks(taskList);
-			db.readTasks();
-			res.close();
-			db.close();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args) {
+//		String sql;
+//		DBConnector db;
+//		ResultSet res;
+//		
+//		sql = "select * from taskinfo";
+//		try {
+//			db = new DBConnector(sql);
+//			res = db.pst.executeQuery();
+//			while (res.next()) {
+//				int id = res.getInt("id");
+//				String name = res.getString("name");
+//				int kind = res.getInt("kind");
+//				int status = res.getInt("status");
+//				String rc_raw = res.getString("relatedClasses");
+//				System.out.println(id + " " + name + " " + kind + " " +
+//						status + " " + rc_raw);
+//			}
+//			ArrayList<Task> taskList = new ArrayList<Task>();
+//			Task newTask = new Task("task_1", Kind.DEBUG);
+//			newTask.addRelatedClass(new String[] {"a.java", "a/a/a.java"});
+//			taskList.add(newTask);
+//			db.close();
+//			db = new DBConnector();
+//			DBConnector.writeTasks(taskList);
+//			DBConnector.readTasks();
+//			res.close();
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }

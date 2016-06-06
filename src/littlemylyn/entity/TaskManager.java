@@ -1,18 +1,21 @@
 package littlemylyn.entity;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import littlemylyn.db.DBConnector;
 
 /*
  * The TaskManager is used to manage all tasks
  */
 public class TaskManager {
+	public static final boolean useDB = true;
 
 	/*
 	 * The task's Kind and Status
@@ -129,6 +132,16 @@ public class TaskManager {
 	}
 	
 	public void saveTaskList(){
+		if (useDB)
+			try {
+				DBConnector.writeTasks(taskList);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		saveTaskListToFile(taskList);
 	}
 	
@@ -140,17 +153,6 @@ public class TaskManager {
 		try {
 			ObjectInputStream oInputStream = new ObjectInputStream(new FileInputStream(DATAPATH));
 			taskList = (ArrayList<Task>)oInputStream.readObject();
-			// FIXME: debug
-			System.out.println("name: " + taskList.get(0).getName());
-			System.out.println("kind: " + taskList.get(0).getKind());
-			System.out.println("status: " + taskList.get(0).getStatus());
-			ArrayList<String[]> relatedClasses = taskList.get(0).getRelatedClass();
-			System.out.println("relatedClasses: ");
-			for (String[] rc : relatedClasses) {
-				for (int i = 0; i < rc.length; i++)
-					System.out.print(rc[i] + "  ");
-				System.out.println();
-			}
 			oInputStream.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -160,6 +162,18 @@ public class TaskManager {
 	}
 	
 	public ArrayList<Task> readTaskList(){
+		if (useDB) {
+			try {
+				return DBConnector.readTasks();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return new ArrayList<Task>();
+		}
 		return readTaskListFromFile();
 	}
 	
